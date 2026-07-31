@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AI 助手设置</title>
+    <style>
+        /* 全局布局: flex铺满视口,禁止页面滚动 */
+        body {
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        span {
+            font-size: 14px;
+            padding: 2px;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 280px;
+            height: 100%;
+            background: white;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 10px 20px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header h2 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .global-switches label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .auto-send-setting {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .list-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* 提示词列表项 */
+        .prompt-item {
+            padding: 8px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .prompt-item:hover {
+            background: #f0f0f0;
+        }
+
+        .prompt-item.active {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+
+        .prompt-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prompt-title {
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .prompt-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .use-count {
+            color: #78909C;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .prompt-badges {
+            display: flex;
+            gap: 5px;
+            font-size: 11px;
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .badge.default {
+            background: #4CAF50;
+        }
+
+        .badge.shortcut {
+            background: #FF9800;
+        }
+
+        .star {
+            padding: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #ddd;
+        }
+
+        .star.fav {
+            color: #FFD700;
+        }
+
+        .add-btn {
+            margin: 10px;
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .add-btn:hover {
+            background: #1976D2;
+        }
+
+        /* 主编辑区 */
+        .main {
+            flex: 1;
+            height: 100%;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* 表单控件 */
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        select {
+            padding: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .target-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .target-option {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        textarea {
+            resize: vertical;
+            height: calc(100vh - 310px);
+            line-height: 1.5;
+        }
+
+        input:disabled,
+        textarea:disabled {
+            background: #f9f9f9;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        /* 底部操作栏 */
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .left-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .btn-save {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #45a049;
+        }
+
+        .btn-del {
+            background: white;
+            color: #F44336;
+            border: 1px solid #F44336;
+        }
+
+        .btn-del:hover {
+            background: #ffebee;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #999;
+            margin-left: 5px;
+        }
+
+        #status-msg {
+            margin-left: 15px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>启用的模型</h2>
+            <div class="global-switches">
+                <label><input type="checkbox" id="enable-chatgpt"> ChatGPT</label>
+                <label><input type="checkbox" id="enable-gemini"> Gemini</label>
+                <label><input type="checkbox" id="enable-claude"> Claude</label>
+                <label><input type="checkbox" id="enable-deepseek"> DeepSeek</label>
+                <label class="auto-send-setting">
+                    <input type="checkbox" id="auto-send"> 填入后自动发送
+                </label>
+            </div>
+        </div>
+        <div class="list-container" id="prompt-list"></div>
+        <div class="add-btn" id="btn-add-new">+ 新建提示词</div>
+    </div>
+
+    <div class="main">
+        <div class="card" id="edit-area">
+            <div class="form-group">
+                <label>提示词标题</label>
+                <input type="text" id="edit-title">
+            </div>
+            <div class="form-group">
+                <div style="display:flex; justify-content:space-between;">
+                    <label>提示词内容（选中文字会自动加安全隔离提示后拼接）</label>
+                    <span class="hint" id="readonly-hint" hidden>(内置提示词不可修改内容)</span>
+                </div>
+                <textarea id="edit-content"></textarea>
+            </div>
+            <div class="form-group">
+                <div style="display: flex">
+                    <div>
+                        <span>指定模型:</span>
+                        <div id="target-model-container" class="target-options"></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                        <span>绑定快捷键:</span>
+                        <select id="edit-shortcut">
+                            <option value="">无</option>
+                            <option value="default">Alt+Q</option>
+                            <option value="slot-1">Alt+1 (Slot 1)</option>
+                            <option value="slot-2">Alt+2 (Slot 2)</option>
+                            <option value="slot-3">Alt+3 (Slot 3)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="left-actions">
+                    <button id="btn-delete" class="btn-del">删除</button>
+                    <span id="status-msg"></span>
+                </div>
+                <button id="btn-save" class="btn-save">保存修改</button>
+            </div>
+        </div>
+    </div>
+    <script src="shared.js"></script>
+    <script src="options.js"></script>
+</body>
+
+</html>

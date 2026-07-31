@@ -1,0 +1,76 @@
+{
+    "manifest_version": 3,
+    "name": "AI 选中发送",
+    "version": "1.0.0",
+    "description": "选中网页文字后，与自定义提示词拼接，并按设置自动发送至一个或多个已启用的 ChatGPT、Gemini、Claude 或 DeepSeek 平台。",
+    "permissions": [
+        "contextMenus",
+        "storage",
+        "scripting",
+        "activeTab"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_title": "点击打开设置",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "32": "icons/icon32.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "options_page": "options.html",
+    "icons": {
+        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://chatgpt.com/*",
+                "https://gemini.google.com/*",
+                "https://claude.ai/*",
+                "https://chat.deepseek.com/*"
+            ],
+            "js": [
+                "shared.js",
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "commands": {
+        "send-selection": {
+            "suggested_key": {
+                "default": "Alt+Q",
+                "mac": "Alt+Q"
+            },
+            "description": "发送到 AI (默认提示词)"
+        },
+        "slot-1": {
+            "suggested_key": {
+                "default": "Alt+1",
+                "mac": "Alt+1"
+            },
+            "description": "快捷槽位 1"
+        },
+        "slot-2": {
+            "suggested_key": {
+                "default": "Alt+2",
+                "mac": "Alt+2"
+            },
+            "description": "快捷槽位 2"
+        },
+        "slot-3": {
+            "suggested_key": {
+                "default": "Alt+3",
+                "mac": "Alt+3"
+            },
+            "description": "快捷槽位 3"
+        }
+    }
+}
